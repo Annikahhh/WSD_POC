@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WhiStress｜英文語音重音分析</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main class="page-shell">
+    <header class="hero">
+      <p class="eyebrow">WHISTRESS · SPEECH PRACTICE POC</p>
+      <h1>英文語音重音分析</h1>
+      <p>分析句子重音，或用 10 題跟讀練習獲得即時回饋。</p>
+    </header>
+
+    <nav class="mode-switcher">
+      <button class="mode-button is-active" type="button" data-mode="analysis">
+        自由分析
+      </button>
+      <button class="mode-button" type="button" data-mode="practice">
+        跟讀練習
+      </button>
+    </nav>
+
+    <section id="analysis-mode" class="mode-panel">
+      <div class="panel">
+        <h2>自由分析</h2>
+        <p class="intro">上傳既有音檔，或直接錄一段英文語音。</p>
+
+        <div class="audio-actions">
+          <label class="upload-zone" id="upload-zone" for="audio-file">
+            <strong>上傳音檔</strong>
+            <span id="file-name">WAV、MP3、FLAC 或 OGG（建議 WAV）</span>
+          </label>
+          <input id="audio-file" type="file"
+                 accept=".wav,.mp3,.flac,.ogg,audio/*" hidden>
+
+          <div class="record-box">
+            <button id="record-button" class="record-button" type="button">
+              ● 開始錄音
+            </button>
+            <span id="recording-time">00:00</span>
+          </div>
+        </div>
+
+        <audio id="audio-preview" controls hidden></audio>
+
+        <label class="field-label" for="transcription">
+          英文逐字稿 <span>（選填）</span>
+        </label>
+
+        <textarea id="transcription" rows="4"
+          placeholder="留空：自動轉錄與句子重音分析。填入逐字稿：另外取得音素重音分析。"></textarea>
+
+        <p class="hint">
+          音素重音只有在提供逐字稿時才是模型實際預測的結果。
+        </p>
+
+        <label class="field-label" for="stress-threshold">
+          句子重音敏感度：
+          <span id="threshold-value">0.70</span>
+        </label>
+
+        <input
+          id="stress-threshold"
+          type="range"
+          min="0.50"
+          max="0.90"
+          step="0.05"
+          value="0.70"
+        >
+
+        <button id="analyze-button" class="primary-button" type="button">
+          開始分析
+        </button>
+
+        <p id="analysis-error" class="message error" hidden></p>
+      </div>
+
+      <section id="analysis-result" class="results" hidden>
+        <div class="result-heading">
+          <div>
+            <p class="eyebrow">ANALYSIS RESULT</p>
+            <h2>分析結果</h2>
+          </div>
+          <span id="phone-status" class="status"></span>
+        </div>
+
+        <article class="panel">
+          <h3>轉錄與句子重音</h3>
+          <p id="analysis-transcript" class="transcript"></p>
+        </article>
+
+        <article class="panel">
+          <h3>單字細節</h3>
+          <div id="analysis-words" class="word-grid"></div>
+        </article>
+      </section>
+    </section>
+
+    <section id="practice-mode" class="mode-panel" hidden>
+      <div class="panel">
+        <h2>跟讀練習</h2>
+        <p class="intro">
+          每題朗讀指定句子並按下錄音鍵。系統會將模型判定的句子重音與目標重音比對。
+        </p>
+
+        <div class="feedback-key">
+          <span class="feedback correct">正確重讀</span>
+          <span class="feedback missed">應重讀但未偵測到</span>
+          <span class="feedback extra">非目標字卻被偵測為重讀</span>
+        </div>
+      </div>
+
+      <div id="exercise-list"></div>
+    </section>
+  </main>
+
+  <template id="exercise-template">
+    <article class="panel exercise-card">
+      <div class="exercise-heading">
+        <span class="exercise-number"></span>
+        <button class="exercise-record record-button" type="button">
+          ● 開始錄音
+        </button>
+      </div>
+
+      <p class="exercise-sentence"></p>
+      <p class="exercise-target"></p>
+      <p class="exercise-message message error" hidden></p>
+      <div class="exercise-result" hidden></div>
+    </article>
+  </template>
+
+  <script src="/static/recorder.js"></script>
+  <script src="/static/app.js?v=phone-stress-v2"></script>
+</body>
+</html>

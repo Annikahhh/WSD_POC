@@ -1,0 +1,428 @@
+:root {
+  font-family: Inter, "Noto Sans TC", "Segoe UI", sans-serif;
+  color: #172033;
+  background: #f4f6fb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at 95% 0%, #e9e4ff, transparent 31rem), #f4f6fb;
+}
+
+button, textarea {
+  font: inherit;
+}
+
+.page-shell {
+  width: min(920px, calc(100% - 32px));
+  margin: auto;
+  padding: 64px 0;
+}
+
+.hero {
+  margin-bottom: 28px;
+}
+
+.hero h1 {
+  margin: 0 0 10px;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+}
+
+.hero > p:last-child,
+.intro,
+.hint {
+  color: #65708a;
+  line-height: 1.65;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: #7257e8;
+  font-size: .76rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+
+.mode-switcher {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.mode-button {
+  border: 0;
+  border-radius: 9px;
+  padding: 10px 16px;
+  color: #556078;
+  background: #e8ebf3;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.mode-button.is-active {
+  color: white;
+  background: #7257e8;
+}
+
+.panel {
+  margin-bottom: 16px;
+  padding: 26px;
+  border: 1px solid #dfe4ee;
+  border-radius: 18px;
+  background: white;
+  box-shadow: 0 12px 35px rgba(34, 43, 69, .06);
+}
+
+.panel h2,
+.panel h3 {
+  margin-top: 0;
+}
+
+.audio-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.upload-zone,
+.record-box {
+  display: flex;
+  min-height: 110px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #c4bdf0;
+  border-radius: 12px;
+  padding: 18px;
+  background: #fbfaff;
+  cursor: pointer;
+  text-align: center;
+}
+
+.upload-zone:hover,
+.upload-zone.dragging {
+  border-color: #7257e8;
+  background: #f0edff;
+}
+
+.upload-zone span {
+  margin-top: 8px;
+  color: #65708a;
+  font-size: .85rem;
+}
+
+.record-box {
+  border-style: solid;
+  border-color: #e0e5ee;
+  background: white;
+  cursor: default;
+}
+
+.record-button,
+.primary-button {
+  border: 0;
+  border-radius: 9px;
+  padding: 11px 16px;
+  color: white;
+  background: #7257e8;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.record-button.is-recording {
+  background: #c42c46;
+}
+
+.record-button:disabled,
+.primary-button:disabled {
+  opacity: .6;
+  cursor: wait;
+}
+
+#recording-time {
+  margin-top: 10px;
+  color: #65708a;
+  font-variant-numeric: tabular-nums;
+}
+
+audio {
+  width: 100%;
+  margin-top: 16px;
+}
+
+.field-label {
+  display: block;
+  margin: 22px 0 8px;
+  font-weight: 800;
+}
+
+.field-label span {
+  color: #65708a;
+  font-size: .85rem;
+  font-weight: 400;
+}
+
+textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #dfe4ee;
+  border-radius: 9px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.hint {
+  margin: 8px 0 0;
+  font-size: .85rem;
+}
+
+.primary-button {
+  margin-top: 22px;
+}
+
+.message {
+  margin: 16px 0 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  line-height: 1.5;
+}
+
+.error {
+  color: #ad1834;
+  background: #fff0f2;
+}
+
+.results {
+  margin-top: 36px;
+}
+
+.result-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.result-heading h2 {
+  margin: 0;
+}
+
+.status {
+  padding: 6px 9px;
+  border-radius: 6px;
+  color: #5b4b00;
+  background: #fff0b8;
+  font-size: .8rem;
+}
+
+.status.available {
+  color: #17613a;
+  background: #dff6e7;
+}
+
+.transcript,
+.exercise-sentence {
+  margin: 0;
+  font-size: 1.14rem;
+  line-height: 2.1;
+}
+
+.transcript-word,
+.practice-word {
+  display: inline-block;
+  margin: 2px 3px 2px 0;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.transcript-word.stressed {
+  background: #ffd66e;
+  font-weight: 800;
+}
+
+.word-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 10px;
+}
+
+.word-card {
+  padding: 13px;
+  border: 1px solid #e0e5ee;
+  border-radius: 10px;
+}
+
+.word-card.stressed {
+  border-color: #e6c25a;
+  background: #fffaf0;
+}
+
+.word-name {
+  font-weight: 800;
+}
+
+.pos,
+.exercise-target {
+  margin-top: 4px;
+  color: #65708a;
+  font-size: .84rem;
+}
+
+.phone-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 10px;
+}
+
+.phone {
+  padding: 3px 6px;
+  border-radius: 4px;
+  color: #4d5972;
+  background: #edf0f5;
+  font: .78rem monospace;
+}
+
+.phone.stressed {
+  color: #5b4700;
+  background: #ffd66e;
+  font-weight: 800;
+}
+
+.feedback-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.feedback {
+  padding: 5px 8px;
+  border-radius: 6px;
+  font-size: .82rem;
+}
+
+.correct {
+  color: #126238;
+  background: #ddf5e6;
+}
+
+.missed {
+  color: #8a5400;
+  background: #fff0c6;
+}
+
+.extra {
+  color: #a41935;
+  background: #ffe2e7;
+}
+
+.exercise-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.exercise-number {
+  color: #7257e8;
+  font-weight: 800;
+}
+
+.practice-word.correct {
+  font-weight: 800;
+  color: #126238;
+  background: #ddf5e6;
+}
+
+.practice-word.missed {
+  border-bottom: 3px solid #e6ac2d;
+}
+
+.practice-word.extra {
+  color: #a41935;
+  background: #ffdce4;
+}
+
+.practice-word.neutral {
+  color: #59647b;
+}
+
+.exercise-result small {
+  display: block;
+  margin-top: 9px;
+  color: #65708a;
+}
+
+.practice-word-feedback {
+  margin-bottom: 16px;
+  font-size: 1.08rem;
+  line-height: 2;
+}
+
+.practice-phone-feedback {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.practice-phone-card {
+  padding: 10px;
+  border: 1px solid #dfe4ee;
+  border-radius: 8px;
+  background: #fafbfe;
+}
+
+.practice-phone-card strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.practice-phone-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.practice-phone {
+  padding: 3px 6px;
+  border-radius: 4px;
+  color: #4d5972;
+  background: #edf0f5;
+  font: .78rem monospace;
+}
+
+.practice-phone.stressed {
+  color: #5b4700;
+  background: #ffd66e;
+  font-weight: 800;
+}
+
+#stress-threshold {
+  width: 100%;
+  accent-color: #7257e8;
+}
+
+@media (max-width: 560px) {
+  .page-shell {
+    padding: 38px 0;
+  }
+
+  .panel {
+    padding: 20px;
+  }
+
+  .audio-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .result-heading,
+  .exercise-heading {
+    align-items: start;
+    flex-direction: column;
+  }
+}
+

@@ -10,7 +10,8 @@ import wandb
 import torch
 from torch.utils.data import DataLoader
 from datasets import load_dataset, load_from_disk, Dataset
-from transformers import WhisperProcessor, WhisperTokenizerFast, WhisperConfig, AdamW
+from transformers import WhisperProcessor, WhisperTokenizerFast, WhisperConfig
+from torch.optim import AdamW
 from tqdm import tqdm
 import torch.nn.functional as F
 from torch.nn.utils.rnn import pad_sequence
@@ -30,6 +31,7 @@ cmu = cmudict.dict()
 from g2p_en import G2p
 from local.e2e_stt.nlp_models import NlpModel
 import pandas as pd
+
 
 POS = ["ADJ", "ADP", "ADV", "AUX", "CCONJ", "DET", 
        "INTJ", "NOUN", "NUM", "PART", "PRON", "PROPN", 

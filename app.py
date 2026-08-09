@@ -11,6 +11,10 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+from pathlib import Path
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+
 from whistress import WhiStressInferenceClient
 from utils import (
     build_phone2id_no_stress, 
@@ -26,7 +30,7 @@ whistress_client = None
 phone_dict = None
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-METADATA_PATH = "/datas/store162/annhung/202608_wsd_ssd_POC/exp/wordstress/best/metadata.json"
+METADATA_PATH = "/datas/store162/ivyhsieh/WSD_POC/whistress/weights/exp/wordstress/best/metadata.json"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -50,6 +54,18 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+BASE_DIR = Path(__file__).resolve().parent
+
+app.mount(
+    "/static",
+    StaticFiles(directory=BASE_DIR / "static"),
+    name="static"
+)
+
+@app.get("/ui", include_in_schema=False)
+def ui():
+    return FileResponse(BASE_DIR / "static" / "index.html")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -69,11 +85,13 @@ class WordDetail(BaseModel):
     word: str
     pos: str
     sentence_stress: int
+    stress_confidence: float
     phones: List[PhoneDetail]
 
 class StressResponse(BaseModel):
     transcription: str
     words: List[WordDetail]
+    phone_stress_available: bool
 
 # ---------------------------------------------------------------------------
 # Helper Functions
@@ -96,27 +114,38 @@ def prepare_features_for_transcription(transcription: str):
     return phone_ids_tensor, token_pos_tensor, words, pos_feats
 
 
-def align_phones_to_words(words: List[str], pos_tags: List[str], phone_stresses: List[int]):
-    """Aligns predicted phone stress levels back to individual words."""
+def align_phones_to_words(
+    words: List[str],
+    pos_tags: List[str],
+    phone_stresses: List[int],
+    include_phone_stress: bool,
+):
+    """Aligns true predicted phone stresses back to individual words."""
     word_details = []
     phone_ptr = 0
 
     for idx, word in enumerate(words):
-        word_phones, _, _ = add_phone_features(word, phone_dict)
-        
         phone_objects = []
-        for phn in word_phones:
-            stress_val = 0
-            if phone_ptr < len(phone_stresses):
-                stress_val = int(phone_stresses[phone_ptr])
-            phone_objects.append(PhoneDetail(phone=phn, stress=stress_val))
-            phone_ptr += 1
+
+        if include_phone_stress:
+            word_phones, _, _ = add_phone_features(word, phone_dict)
+
+            for phn in word_phones:
+                stress_val = 0
+                if phone_ptr < len(phone_stresses):
+                    stress_val = int(phone_stresses[phone_ptr])
+
+                phone_objects.append(
+                    PhoneDetail(phone=phn, stress=stress_val)
+                )
+                phone_ptr += 1
 
         word_details.append(
             WordDetail(
                 word=word,
                 pos=pos_tags[idx] if idx < len(pos_tags) else "X",
                 sentence_stress=0,
+                stress_confidence=0.0,
                 phones=phone_objects
             )
         )
@@ -130,11 +159,16 @@ def align_phones_to_words(words: List[str], pos_tags: List[str], phone_stresses:
 def health_check():
     return {"status": "ok", "device": device, "service": "WhiStress Analysis API"}
 
+@app.get("/ui", include_in_schema=False)
+def ui():
+    return FileResponse(BASE_DIR / "static" / "index.html")
+
 
 @app.post("/api/predict", response_model=StressResponse)
 async def predict_stress(
     file: UploadFile = File(...),
-    transcription: Optional[str] = Form(None)
+    transcription: Optional[str] = Form(None),
+    sentence_stress_threshold: float = Form(0.70, ge=0.0, le=1.0)
 ):
     if not file.filename.lower().endswith((".wav", ".mp3", ".flac", ".ogg")):
         raise HTTPException(status_code=400, detail="Invalid audio file format.")
@@ -170,7 +204,7 @@ async def predict_stress(
             token_pos_ids=token_pos_ids
         )
 
-        pred_words, word_stresses = zip(*scored)
+        pred_words, _, word_scores = zip(*scored)
         final_transcript = " ".join(pred_words)
 
         if not words:
@@ -178,22 +212,34 @@ async def predict_stress(
             vp_feats = nlp_model.vocab_profile_feats(words)
             pos_tags = vp_feats["pos_list"]
 
-        # Parse Phone Predictions
+        phone_stress_available = phone_stress_preds is not None
         phone_stresses_list = []
-        if phone_stress_preds is not None:
+
+        if phone_stress_available:
             phone_stresses_list = phone_stress_preds.squeeze(0).cpu().tolist()
 
-        # Build Response Structures
-        word_structures = align_phones_to_words(words, pos_tags, phone_stresses_list)
+        word_structures = align_phones_to_words(
+            words,
+            pos_tags,
+            phone_stresses_list,
+            include_phone_stress=phone_stress_available,
+        )
 
         # Attach word-level sentence stress
         for i, word_obj in enumerate(word_structures):
-            if i < len(word_stresses):
-                word_obj.sentence_stress = int(word_stresses[i])
+            if i < len(word_scores):
+                confidence = float(word_scores[i])
+
+                word_obj.stress_confidence = round(confidence, 3)
+
+                word_obj.sentence_stress = int(
+                    confidence >= sentence_stress_threshold
+                )
 
         return StressResponse(
             transcription=final_transcript,
-            words=word_structures
+            words=word_structures,
+            phone_stress_available=phone_stress_available,
         )
 
     except Exception as e:
